@@ -20,6 +20,7 @@ namespace EventStopper
         public bool disableGoblinInvasion = false;
         public bool disablePirateInvasion = false;
         public bool disableFrostLegion = false;
+        public bool disableMeteors = false;
 
         public static eConfig Read(string path)
         {

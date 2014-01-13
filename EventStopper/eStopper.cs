@@ -64,6 +64,9 @@ namespace EventStopper
 
         private void onUpdate(EventArgs args)
         {
+            if (WorldGen.spawnMeteor && config.disableMeteors)
+                WorldGen.spawnMeteor = false;
+
             if (Main.moonPhase == 0 && config.disableFullMoon)
                 TSServerPlayer.Server.SetFullMoon(false);
 
