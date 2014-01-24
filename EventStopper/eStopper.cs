@@ -83,7 +83,11 @@ namespace EventStopper
                 TSServerPlayer.Server.SetEclipse(false);
 
             if (Main.raining && config.disableRain)
+            {
+                Main.rainTime = 0;
                 Main.raining = false;
+                Main.maxRaining = 0f;
+            }
 
             if (Main.invasionType > 0)
                 switch (Main.invasionType)
