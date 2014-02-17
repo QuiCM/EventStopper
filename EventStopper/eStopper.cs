@@ -13,7 +13,7 @@ using TerrariaApi.Server;
 
 namespace EventStopper
 {
-    [ApiVersion(1,14)]
+    [ApiVersion(1,15)]
     public class eStopper : TerrariaPlugin
     {
         public static eConfig config { get; set; }
