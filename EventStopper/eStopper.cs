@@ -1,88 +1,82 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-
 using TShockAPI;
 
 using Terraria;
-using TerrariaApi;
 using TerrariaApi.Server;
+using TShockAPI.Hooks;
 
 namespace EventStopper
 {
-    [ApiVersion(1,14)]
-    public class eStopper : TerrariaPlugin
+    [ApiVersion(1,16)]
+    public class EStopper : TerrariaPlugin
     {
-        public static eConfig config { get; set; }
-        public static string configPath { get { return Path.Combine(TShock.SavePath, "EventStop.json"); } }
+        private static eConfig Config { get; set; }
 
         public override string Author { get { return "WhiteX"; } }
         public override string Description { get { return "Stops config defined events when they start"; } }
         public override string Name { get { return "EventStopper"; } }
         public override Version Version { get { return new Version(1, 0); } }
 
-        public eStopper(Main game)
+        public EStopper(Main game)
             : base(game)
         {
             Order = 1;
-            config = new eConfig();
+            Config = new eConfig();
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                ServerApi.Hooks.GameInitialize.Deregister(this, onInitialize);
-                ServerApi.Hooks.GameUpdate.Deregister(this, onUpdate);
+                ServerApi.Hooks.GameInitialize.Deregister(this, OnInitialize);
+                ServerApi.Hooks.GameUpdate.Deregister(this, OnUpdate);
             }
             base.Dispose(disposing);
         }
 
         public override void Initialize()
         {
-            ServerApi.Hooks.GameInitialize.Register(this, onInitialize);
-            ServerApi.Hooks.GameUpdate.Register(this, onUpdate);
+            ServerApi.Hooks.GameInitialize.Register(this, OnInitialize);
+            ServerApi.Hooks.GameUpdate.Register(this, OnUpdate);
         }
 
-        public void onInitialize(EventArgs args)
+        private void OnInitialize(EventArgs args)
         {
-            Commands.ChatCommands.Add(new Command("estopper.reload", reloadCom, "ereload")
+            Commands.ChatCommands.Add(new Command("estopper.reload", ReloadCom, "ereload")
             {
                 HelpText = "Reloads the event stopper plugin's configuration file"
             });
-            setUpConfig();
+            SetUpConfig(new ReloadEventArgs(TSPlayer.Server));
         }
 
-        private void reloadCom(CommandArgs args)
+        private void ReloadCom(CommandArgs args)
         {
             args.Player.SendInfoMessage("Requesting configuration reload");
-            setUpConfig(args.Player);
+            SetUpConfig(new ReloadEventArgs(args.Player));
         }
 
-        private void onUpdate(EventArgs args)
+        private static void OnUpdate(EventArgs args)
         {
-            if (WorldGen.spawnMeteor && config.disableMeteors)
+            if (WorldGen.spawnMeteor && Config.disableMeteors)
                 WorldGen.spawnMeteor = false;
 
-            if (Main.moonPhase == 0 && config.disableFullMoon)
-                TSServerPlayer.Server.SetFullMoon(false);
+            if (Main.moonPhase == 0 && Config.disableFullMoon)
+                TSPlayer.Server.SetFullMoon(false);
 
-            if (Main.bloodMoon && config.disableBloodMoon)
-                TSServerPlayer.Server.SetBloodMoon(false);
+            if (Main.bloodMoon && Config.disableBloodMoon)
+                TSPlayer.Server.SetBloodMoon(false);
 
-            if (Main.snowMoon && config.disableSnowMoon)
-                TSServerPlayer.Server.SetSnowMoon(false);
+            if (Main.snowMoon && Config.disableSnowMoon)
+                TSPlayer.Server.SetSnowMoon(false);
 
-            if (Main.pumpkinMoon && config.disablePumpkinMoon)
-                TSServerPlayer.Server.SetPumpkinMoon(false);
+            if (Main.pumpkinMoon && Config.disablePumpkinMoon)
+                TSPlayer.Server.SetPumpkinMoon(false);
 
-            if (Main.eclipse && config.disableEclipse)
-                TSServerPlayer.Server.SetEclipse(false);
+            if (Main.eclipse && Config.disableEclipse)
+                TSPlayer.Server.SetEclipse(false);
 
-            if (Main.raining && config.disableRain)
+            if (Main.raining && Config.disableRain)
             {
                 Main.rainTime = 0;
                 Main.raining = false;
@@ -94,7 +88,7 @@ namespace EventStopper
                 {
                     case 1:
                         {
-                            if (config.disableGoblinInvasion)
+                            if (Config.disableGoblinInvasion)
                             {
                                 Main.invasionType = 0;
                                 Main.invasionSize = 0;
@@ -103,7 +97,7 @@ namespace EventStopper
                         }
                     case 2:
                         {
-                            if (config.disableFrostLegion)
+                            if (Config.disableFrostLegion)
                             {
                                 Main.invasionType = 0;
                                 Main.invasionSize = 0;
@@ -112,7 +106,7 @@ namespace EventStopper
                         }
                     case 3:
                         {
-                            if (config.disablePirateInvasion)
+                            if (Config.disablePirateInvasion)
                             {
                                 Main.invasionType = 0;
                                 Main.invasionSize = 0;
@@ -122,25 +116,21 @@ namespace EventStopper
                 }
         }
 
-        private void setUpConfig(TSPlayer player = null)
+        private static void SetUpConfig(ReloadEventArgs args)
         {
             try
             {
-                if (File.Exists(configPath))
-                    config = eConfig.Read(configPath);
+                var configPath = Path.Combine(TShock.SavePath, "EventStop.json");
+                (Config = eConfig.Read(configPath)).Write(configPath);
 
-                else
-                    config.Write(configPath);
-
-                if (player != null)
-                    player.SendSuccessMessage("Reloaded event stopper plugin's configuration");
+                args.Player.SendSuccessMessage("Reloaded event stopper plugin's configuration");
             }
             catch (Exception x)
             {
                 Log.ConsoleError("Error occured on reloading event stopper plugin's configuration");
                 Log.ConsoleError(x.ToString());
-                player.SendErrorMessage("Error occured on reloading event stopper plugin's configuration");
-                player.SendErrorMessage(x.Message);
+                args.Player.SendErrorMessage("Error occured on reloading event stopper plugin's configuration");
+                args.Player.SendErrorMessage(x.Message);
             }
         }
     }

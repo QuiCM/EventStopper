@@ -1,10 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-
+﻿using System.IO;
 using Newtonsoft.Json;
 
 namespace EventStopper
@@ -22,43 +16,16 @@ namespace EventStopper
         public bool disableFrostLegion = false;
         public bool disableMeteors = false;
 
+        public void Write(string path)
+        {
+            File.WriteAllText(path, JsonConvert.SerializeObject(this, Formatting.Indented));
+        }
+
         public static eConfig Read(string path)
         {
             if (!File.Exists(path))
                 return new eConfig();
-            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                return Read(fs);
-            }
+            return JsonConvert.DeserializeObject<eConfig>(File.ReadAllText(path));
         }
-
-        public static eConfig Read(Stream stream)
-        {
-            using (var sr = new StreamReader(stream))
-            {
-                var cf = JsonConvert.DeserializeObject<eConfig>(sr.ReadToEnd());
-                if (ConfigRead != null)
-                    ConfigRead(cf);
-                return cf;
-            }
-        }
-
-        public void Write(string path)
-        {
-            using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Write))
-            {
-                Write(fs);
-            }
-        }
-        public void Write(Stream stream)
-        {
-            var str = JsonConvert.SerializeObject(this, Formatting.Indented);
-            using (var sw = new StreamWriter(stream))
-            {
-                sw.Write(str);
-            }
-        }
-
-        public static Action<eConfig> ConfigRead;
     }
 }
