@@ -62,13 +62,13 @@ namespace EventStopper
                 WorldGen.spawnMeteor = false;
 
             if (Main.moonPhase == 0 && Config.disableFullMoon)
-                TSPlayer.Server.SetFullMoon(false);
+                TSPlayer.Server.SetTime(false, 0.0);
 
             if (Main.bloodMoon && Config.disableBloodMoon)
                 TSPlayer.Server.SetBloodMoon(false);
 
             if (Main.snowMoon && Config.disableSnowMoon)
-                TSPlayer.Server.SetSnowMoon(false);
+                TSPlayer.Server.SetFrostMoon(false);
 
             if (Main.pumpkinMoon && Config.disablePumpkinMoon)
                 TSPlayer.Server.SetPumpkinMoon(false);
