@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using TShockAPI;
 
 using Terraria;
@@ -8,15 +9,15 @@ using TShockAPI.Hooks;
 
 namespace EventStopper
 {
-    [ApiVersion(1,16)]
+    [ApiVersion(1,17)]
     public class EStopper : TerrariaPlugin
     {
         private static eConfig Config { get; set; }
 
-        public override string Author { get { return "WhiteX"; } }
-        public override string Description { get { return "Stops config defined events when they start"; } }
+        public override string Author { get { return "White"; } }
+        public override string Description { get { return "Attempts to stop config defined events when they start"; } }
         public override string Name { get { return "EventStopper"; } }
-        public override Version Version { get { return new Version(1, 0); } }
+        public override Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
 
         public EStopper(Main game)
             : base(game)
@@ -127,8 +128,8 @@ namespace EventStopper
             }
             catch (Exception x)
             {
-                Log.ConsoleError("Error occured on reloading event stopper plugin's configuration");
-                Log.ConsoleError(x.ToString());
+                TShock.Log.ConsoleError("Error occured on reloading event stopper plugin's configuration");
+                TShock.Log.ConsoleError(x.ToString());
                 args.Player.SendErrorMessage("Error occured on reloading event stopper plugin's configuration");
                 args.Player.SendErrorMessage(x.Message);
             }
