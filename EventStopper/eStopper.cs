@@ -9,10 +9,10 @@ using TShockAPI.Hooks;
 
 namespace EventStopper
 {
-    [ApiVersion(1,17)]
+    [ApiVersion(1, 21)]
     public class EStopper : TerrariaPlugin
     {
-        private static eConfig Config { get; set; }
+        private static Config Config { get; set; }
 
         public override string Author { get { return "White"; } }
         public override string Description { get { return "Attempts to stop config defined events when they start"; } }
@@ -23,7 +23,7 @@ namespace EventStopper
             : base(game)
         {
             Order = 1;
-            Config = new eConfig();
+            Config = new Config();
         }
 
         protected override void Dispose(bool disposing)
@@ -44,18 +44,26 @@ namespace EventStopper
 
         private void OnInitialize(EventArgs args)
         {
-            Commands.ChatCommands.Add(new Command("estopper.reload", ReloadCom, "ereload")
-            {
-                HelpText = "Reloads the event stopper plugin's configuration file"
-            });
-            SetUpConfig(new ReloadEventArgs(TSPlayer.Server));
+			GeneralHooks.ReloadEvent += OnReload;
         }
 
-        private void ReloadCom(CommandArgs args)
-        {
-            args.Player.SendInfoMessage("Requesting configuration reload");
-            SetUpConfig(new ReloadEventArgs(args.Player));
-        }
+		private void OnReload(ReloadEventArgs e)
+		{
+			try
+			{
+				var configPath = Path.Combine(TShock.SavePath, "EventStop.json");
+				(Config = Config.Read(configPath)).Write(configPath);
+
+				e.Player.SendSuccessMessage("Reloaded event stopper plugin's configuration");
+			}
+			catch (Exception x)
+			{
+				TShock.Log.ConsoleError("Error occured on reloading event stopper plugin's configuration");
+				TShock.Log.ConsoleError(x.ToString());
+				e.Player.SendErrorMessage("Error occured on reloading event stopper plugin's configuration");
+				e.Player.SendErrorMessage(x.Message);
+			}
+		}
 
         private static void OnUpdate(EventArgs args)
         {
@@ -115,24 +123,6 @@ namespace EventStopper
                             break;
                         }
                 }
-        }
-
-        private static void SetUpConfig(ReloadEventArgs args)
-        {
-            try
-            {
-                var configPath = Path.Combine(TShock.SavePath, "EventStop.json");
-                (Config = eConfig.Read(configPath)).Write(configPath);
-
-                args.Player.SendSuccessMessage("Reloaded event stopper plugin's configuration");
-            }
-            catch (Exception x)
-            {
-                TShock.Log.ConsoleError("Error occured on reloading event stopper plugin's configuration");
-                TShock.Log.ConsoleError(x.ToString());
-                args.Player.SendErrorMessage("Error occured on reloading event stopper plugin's configuration");
-                args.Player.SendErrorMessage(x.Message);
-            }
         }
     }
 }

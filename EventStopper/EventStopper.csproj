@@ -50,8 +50,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="eConfig.cs" />
-    <Compile Include="eStopper.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="EStopper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
