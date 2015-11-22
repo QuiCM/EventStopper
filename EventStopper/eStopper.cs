@@ -40,6 +40,13 @@ namespace EventStopper
 		{
 			ServerApi.Hooks.GameInitialize.Register(this, OnInitialize);
 			ServerApi.Hooks.GameUpdate.Register(this, OnUpdate);
+
+			var configPath = Path.Combine(TShock.SavePath, "EventStop.json");
+			if (!File.Exists(configPath))
+			{
+				Config.Write(configPath);
+			}
+			Config = Config.Read(configPath);
 		}
 
 		private void OnInitialize(EventArgs args)
@@ -52,7 +59,11 @@ namespace EventStopper
 			try
 			{
 				var configPath = Path.Combine(TShock.SavePath, "EventStop.json");
-				(Config = Config.Read(configPath)).Write(configPath);
+				if (!File.Exists(configPath))
+				{
+					Config.Write(configPath);
+				}
+				Config = Config.Read(configPath);
 
 				e.Player.SendSuccessMessage("Reloaded event stopper plugin's configuration");
 			}
