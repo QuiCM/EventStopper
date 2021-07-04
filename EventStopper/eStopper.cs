@@ -6,6 +6,7 @@ using TShockAPI;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI.Hooks;
+using Terraria.ID;
 
 namespace EventStopper
 {
@@ -32,6 +33,7 @@ namespace EventStopper
 			{
 				ServerApi.Hooks.GameInitialize.Deregister(this, OnInitialize);
 				ServerApi.Hooks.GameUpdate.Deregister(this, OnUpdate);
+				ServerApi.Hooks.NpcSpawn.Deregister(this, OnSpawn);
 			}
 			base.Dispose(disposing);
 		}
@@ -40,6 +42,7 @@ namespace EventStopper
 		{
 			ServerApi.Hooks.GameInitialize.Register(this, OnInitialize);
 			ServerApi.Hooks.GameUpdate.Register(this, OnUpdate);
+			ServerApi.Hooks.NpcSpawn.Register(this, OnSpawn);
 
 			var configPath = Path.Combine(TShock.SavePath, "EventStop.json");
 			if (!File.Exists(configPath))
@@ -197,6 +200,31 @@ namespace EventStopper
 				{
 					TSPlayer.All.SendData(PacketTypes.WorldInfo);
 				}
+			}
+		}
+
+		private static void OnSpawn(NpcSpawnEventArgs args)
+        {
+			if (args.Handled)
+				return;
+
+			if (Config.disableCultists)
+            {
+				args.Handled = true;
+				Main.npc[NPCID.CultistArcherBlue].active = false;
+				Main.npc[NPCID.CultistDevote].active = false;
+				Main.npc[NPCID.CultistBoss].active = false;
+				args.NpcId = Main.maxNPCs;
+			}
+
+			if (Config.disableLunar)
+            {
+				args.Handled = true;
+				Main.npc[NPCID.LunarTowerVortex].active = false;
+				Main.npc[NPCID.LunarTowerStardust].active = false;
+				Main.npc[NPCID.LunarTowerNebula].active = false;
+				Main.npc[NPCID.LunarTowerSolar].active = false;
+				args.NpcId = Main.maxNPCs;
 			}
 		}
 	}
