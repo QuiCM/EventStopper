@@ -90,13 +90,13 @@ namespace EventStopper
 			if (Main.bloodMoon && Config.disableBloodMoon)
 				TSPlayer.Server.SetBloodMoon(false);
 
-			if (Main.snowMoon && Config.disableSnowMoon)
+			if (Main.snowMoon && Config.disableFrostMoon)
 				TSPlayer.Server.SetFrostMoon(false);
 
 			if (Main.pumpkinMoon && Config.disablePumpkinMoon)
 				TSPlayer.Server.SetPumpkinMoon(false);
 
-			if (Main.eclipse && Config.disableEclipse)
+			if (Main.eclipse && Config.disableSolarEclipse)
 				TSPlayer.Server.SetEclipse(false);
 
 			if (Main.raining && Config.disableRain)
@@ -106,12 +106,19 @@ namespace EventStopper
 				Main.maxRaining = 0f;
 			}
 
+			if (Main.slimeRain && Config.disableSlimeRain)
+            {
+				Main.rainTime = 0;
+				Main.slimeRain = false;
+				Main.maxRaining = 0f;
+            }
+
 			if (Config.disableCultists)
 			{
 				WorldGen.GetRidOfCultists();
 			}
 
-			if (NPC.MoonLordCountdown > 0 && Config.disableLunar)
+			if (NPC.MoonLordCountdown > 0 && Config.disableLunarInvasion)
 			{
 				NPC.MoonLordCountdown = 0;
 				NPC.LunarApocalypseIsUp = false;
@@ -164,7 +171,7 @@ namespace EventStopper
 						}
 					case 5:
 						{
-							if (Config.disableSnowMoon)
+							if (Config.disableFrostMoon)
 							{
 								Main.invasionType = 0;
 								Main.invasionSize = 0;
@@ -173,7 +180,7 @@ namespace EventStopper
 						}
 					case 6:
 						{
-							if (Config.disableEclipse)
+							if (Config.disableSolarEclipse)
 							{
 								Main.invasionType = 0;
 								Main.invasionSize = 0;
@@ -182,7 +189,7 @@ namespace EventStopper
 						}
 					case 7:
 						{
-							if (Config.disableAliens)
+							if (Config.disableMartianInvasion)
 							{
 								Main.invasionType = 0;
 								Main.invasionSize = 0;
@@ -217,7 +224,7 @@ namespace EventStopper
 				args.NpcId = Main.maxNPCs;
 			}
 
-			if (Config.disableLunar)
+			if (Config.disableLunarInvasion)
             {
 				args.Handled = true;
 				Main.npc[NPCID.LunarTowerVortex].active = false;
