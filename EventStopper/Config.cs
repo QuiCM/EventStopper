@@ -6,17 +6,18 @@ namespace EventStopper
     public class Config
     {
         public bool disableFullMoon = false;
-        public bool disableSnowMoon = false;
+        public bool disableFrostMoon = false;
         public bool disableBloodMoon = false;
         public bool disablePumpkinMoon = false;
-        public bool disableEclipse = false;
+        public bool disableSolarEclipse = false;
         public bool disableRain = false;
+        public bool disableSlimeRain = false;
         public bool disableGoblinInvasion = false;
         public bool disablePirateInvasion = false;
         public bool disableFrostLegion = false;
         public bool disableMeteors = false;
-		public bool disableAliens = false;
-		public bool disableLunar = false;
+		public bool disableMartianInvasion = false;
+		public bool disableLunarInvasion = false;
 		public bool disableCultists = false;
 
         public void Write(string path)

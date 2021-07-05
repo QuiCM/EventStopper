@@ -6,6 +6,7 @@ using TShockAPI;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI.Hooks;
+using Terraria.ID;
 
 namespace EventStopper
 {
@@ -32,6 +33,7 @@ namespace EventStopper
 			{
 				ServerApi.Hooks.GameInitialize.Deregister(this, OnInitialize);
 				ServerApi.Hooks.GameUpdate.Deregister(this, OnUpdate);
+				ServerApi.Hooks.NpcSpawn.Deregister(this, OnSpawn);
 			}
 			base.Dispose(disposing);
 		}
@@ -40,6 +42,7 @@ namespace EventStopper
 		{
 			ServerApi.Hooks.GameInitialize.Register(this, OnInitialize);
 			ServerApi.Hooks.GameUpdate.Register(this, OnUpdate);
+			ServerApi.Hooks.NpcSpawn.Register(this, OnSpawn);
 
 			var configPath = Path.Combine(TShock.SavePath, "EventStop.json");
 			if (!File.Exists(configPath))
@@ -87,13 +90,13 @@ namespace EventStopper
 			if (Main.bloodMoon && Config.disableBloodMoon)
 				TSPlayer.Server.SetBloodMoon(false);
 
-			if (Main.snowMoon && Config.disableSnowMoon)
+			if (Main.snowMoon && Config.disableFrostMoon)
 				TSPlayer.Server.SetFrostMoon(false);
 
 			if (Main.pumpkinMoon && Config.disablePumpkinMoon)
 				TSPlayer.Server.SetPumpkinMoon(false);
 
-			if (Main.eclipse && Config.disableEclipse)
+			if (Main.eclipse && Config.disableSolarEclipse)
 				TSPlayer.Server.SetEclipse(false);
 
 			if (Main.raining && Config.disableRain)
@@ -103,12 +106,19 @@ namespace EventStopper
 				Main.maxRaining = 0f;
 			}
 
+			if (Main.slimeRain && Config.disableSlimeRain)
+            {
+				Main.rainTime = 0;
+				Main.slimeRain = false;
+				Main.maxRaining = 0f;
+            }
+
 			if (Config.disableCultists)
 			{
 				WorldGen.GetRidOfCultists();
 			}
 
-			if (NPC.MoonLordCountdown > 0 && Config.disableLunar)
+			if (NPC.MoonLordCountdown > 0 && Config.disableLunarInvasion)
 			{
 				NPC.MoonLordCountdown = 0;
 				NPC.LunarApocalypseIsUp = false;
@@ -161,7 +171,7 @@ namespace EventStopper
 						}
 					case 5:
 						{
-							if (Config.disableSnowMoon)
+							if (Config.disableFrostMoon)
 							{
 								Main.invasionType = 0;
 								Main.invasionSize = 0;
@@ -170,7 +180,7 @@ namespace EventStopper
 						}
 					case 6:
 						{
-							if (Config.disableEclipse)
+							if (Config.disableSolarEclipse)
 							{
 								Main.invasionType = 0;
 								Main.invasionSize = 0;
@@ -179,7 +189,7 @@ namespace EventStopper
 						}
 					case 7:
 						{
-							if (Config.disableAliens)
+							if (Config.disableMartianInvasion)
 							{
 								Main.invasionType = 0;
 								Main.invasionSize = 0;
@@ -197,6 +207,31 @@ namespace EventStopper
 				{
 					TSPlayer.All.SendData(PacketTypes.WorldInfo);
 				}
+			}
+		}
+
+		private static void OnSpawn(NpcSpawnEventArgs args)
+        {
+			if (args.Handled)
+				return;
+
+			if (Config.disableCultists)
+            {
+				args.Handled = true;
+				Main.npc[NPCID.CultistArcherBlue].active = false;
+				Main.npc[NPCID.CultistDevote].active = false;
+				Main.npc[NPCID.CultistBoss].active = false;
+				args.NpcId = Main.maxNPCs;
+			}
+
+			if (Config.disableLunarInvasion)
+            {
+				args.Handled = true;
+				Main.npc[NPCID.LunarTowerVortex].active = false;
+				Main.npc[NPCID.LunarTowerStardust].active = false;
+				Main.npc[NPCID.LunarTowerNebula].active = false;
+				Main.npc[NPCID.LunarTowerSolar].active = false;
+				args.NpcId = Main.maxNPCs;
 			}
 		}
 	}

@@ -213,3 +213,4 @@ ModelManifest.xml
 
 **/bin/*
 **/obj/*
+*.dll
